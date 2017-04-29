@@ -47,5 +47,5 @@ q.subscribe do |delivery_info, metadata, socket|
   end
 end
 
-sleep
-conn.close
+#sleep
+#conn.close

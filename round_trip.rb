@@ -26,13 +26,11 @@ end
 
 class Writer
   include Celluloid
-  include Celluloid::Notifications
   include Celluloid::Logger
 
   def initialize(websocket)
     info "Writer#initialize socket: #{websocket}"
     @socket = websocket
-    subscribe('write_message', :new_message)
     STDOUT.sync = true
 
     $x.publish(@socket.to_s, routing_key: $q.name)
@@ -56,7 +54,6 @@ end
 
 class Reader
   include Celluloid
-  include Celluloid::Notifications
   include Celluloid::Logger
 
   def initialize(websocket)
