@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ankura</title>
+  <style>
+    body {
+      font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+      font-weight: 300;
+      text-align: center;
+    }
+
+    #content {
+      width: 800px;
+      margin: 0 auto;
+      background: #EEEEEE;
+      padding: 1em;
+    }
+  </style>
+</head>
+<body>
+<div id="content">
+  <h2>Ankura Bosco Communication</h2>
+  <div>
+    <input id="text_input" type="text" name="q" value="" autocomplete="off"/>
+    Latest message is: <span id="current-time">...</span></div>
+</div>
+</body>
+<script>
+  var SocketKlass = "MozWebSocket" in window ? MozWebSocket : WebSocket;
+  var ws = new SocketKlass('ws://' + window.location.host + '/ws');
+  ws.onmessage = function(msg){
+    document.getElementById('current-time').innerHTML = msg.data;
+  };
+  var input = document.getElementById("text_input");
+  input.focus();
+  input.onkeydown = function(evt) {
+    var evt = evt || window.event;
+    if (evt.keyCode === 13) {
+      ws.send(input.value);console.log(input.value);
+      input.value = "";
+    }
+  };
+</script>
+</html>
