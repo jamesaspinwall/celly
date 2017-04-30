@@ -98,10 +98,13 @@ class WebServer < Reel::Server::HTTP
 
   def route_request(connection, request)
     if request.url == "/"
-      info "200 OK: /"
-      connection.respond :ok, File.open('html/index.html') { |f| f.read }
+      filename = "html/index.html"
+    else
+      filename = "html/#{request.url}"
     end
-
+    info "200 OK: /"
+    connection.respond :ok, File.open(filename) { |f| f.read }
+  rescue
     info "404 Not Found: #{request.path}"
     connection.respond :not_found, "Not found"
   end
