@@ -1,190 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Bootstrap Example</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <title>Ankura</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 
 <div class="container">
 
-    <h1>My First Bootstrap Page</h1>
-    <p>This is some text.</p>
-    <div class="container-fluid">
-        <h1>Hello World!</h1>
-        <p>Resize the browser window to see the effect.</p>
-        <div class="row">
-            <div class="col-sm-4" style="background-color:lavender;">.col-sm-4</div>
-            <div class="col-sm-4" style="background-color:lavenderblush;">.col-sm-5
-                <mark>highlight</mark>
-            </div>
-            <div class="col-sm-4" style="background-color:lavender;">.col-sm-4</div>
-        </div>
+  <h2>Ankura</h2>
+  <div class="container-fluid">
+    <h3>Online Claim</h3>
+    <div class="row">
+      <div class="col-sm-4" style="background-color:lavender;">Registration</div>
+      <div class="col-sm-4" style="background-color:lavenderblush;">Claim
+        <mark>123-456</mark>
+      </div>
+      <div class="col-sm-4" style="background-color:lavender;">Vehicle</div>
     </div>
-    <div class="container">
-        <h2>Button States</h2>
-        <button id="a" type="button" class="btn btn-primary">Primary Button</button>
-        <button id="b" type="button" class="btn btn-primary active">Active Primary</button>
-        <button id="c" type="button" class="btn btn-primary disabled">Disabled Primary</button>
-    </div>
+  </div>
+  <div class="container">
+    <h3>Documents</h3>
+    <button id="a" type="button" class="btn btn-primary">Edit</button>
+    <button id="b" type="button" class="btn btn-primary active">Save</button>
+    <button id="c" type="button" class="btn btn-primary disabled">Submit</button>
+  </div>
 
-    <script>
-        app = {
-            disable_a: function () {
-                $('#a').addClass("disabled")
-            },
-            disable_b: function () {
-                $('#b').addClass("disabled")
-            },
-            enable_a: function () {
-                $('#a').removeClass("disabled")
-            },
-            enable_b: function () {
-                $('#b').removeClass("disabled")
-            },
-            run: function (what) {
-                for (var i = 0; i < what.length; i++) {
-                    what[i]()
-                }
-            }
+  <script>
+    app = {
+      disable_a: function () {
+        $('#a').addClass("disabled")
+      },
+      disable_b: function () {
+        $('#b').addClass("disabled")
+      },
+      enable_a: function () {
+        $('#a').removeClass("disabled")
+      },
+      enable_b: function () {
+        $('#b').removeClass("disabled")
+      },
+      run: function (what) {
+        for (var i = 0; i < what.length; i++) {
+          what[i]()
         }
-        x = [app.disable_a, app.disable_b]
-        y = [app.enable_a, app.enable_b]
+      }
+    }
+    x = [app.disable_a, app.disable_b]
+    y = [app.enable_a, app.enable_b]
 
-        function a() {
-            console.log('A')
+    function a() {
+      console.log('A')
+    }
+
+    function b() {
+      console.log('B')
+    }
+
+    function c() {
+      console.log('C')
+    }
+
+    function de() {
+      console.log('DE')
+    }
+    base = 0
+    marks = []
+    associates = []
+
+    function check_one(variable, v_type) {
+      if (variable.constructor !== v_type)
+        throw "Error, expected correct type"
+    }
+
+    function check_many(arr) {
+      for (var i = 0; i < arr.length; ++i) {
+        check_one(arr[i][0], arr[i][1])
+      }
+    }
+
+    function to_bin(symbol){
+      var pos = marks.indexOf(symbol)
+      if (pos == -1) {
+        pos = marks.length
+        marks.push(symbol)
+      }
+      return (1 << pos)
+    }
+
+    function associate(symbols, method) {
+      //check_many([[symbols, Array], [method, Function]])
+
+      var binary = 0
+
+      if (symbols.constructor === Array) {
+        for (var i = 0; i < symbols.length; ++i) {
+          binary |= to_bin(symbols[i])
         }
+      } else if (symbols.constructor === String){
+        binary |= to_bin(symbols)
+      }
+      associates.push([binary, method])
+    }
 
-        function b() {
-            console.log('B')
+    function fire() {
+      var i = 0
+      while (i < associates.length) {
+        associate = associates[i]
+        if ((associate[0] & base) == associate[0]) {
+          associate[1]()
+          base &= ~associate[0]
+          i = 0
         }
-
-        function c() {
-            console.log('C')
+        else {
+          ++i
         }
+      }
 
-        function de(){
-            console.log('DE')
-        }
-        base = 0
-        marks = []
-        associates = []
+    }
 
-        function associate(symbols, method) {
-            var binary = 0
+    function test_associates() {
+      associate('a', a)
+      associate('b', b)
+      associate('c', c)
+      associate(['d', 'e'], de)
+      mark('a')
+      fire()
+      assert(base, 0)
+      mark('b')
+      fire()
+      assert(base, 0)
+      mark('c')
+      fire()
+      assert(base, 0)
+      mark('a')
+      mark('c')
+      fire()
+      mark('d')
+      fire()
+      assert(base, 8)
+      mark('e')
+      assert(base, 24)
+      fire()
+      assert(base, 0)
 
-            for (var i = 0; i < symbols.length; ++i) {
-                var pos = marks.indexOf(symbols[i])
-                if (pos == -1) {
-                    pos = marks.length
-                    marks.push(symbols[i])
-                }
-                binary |= (1 << pos)
-            }
-            associates.push([binary, method])
-        }
+      mark(['e','d'])
+      assert(base, 24)
+      fire()
+      assert(base, 0)
 
-        function fire() {
-            var i = 0
-            while (i < associates.length) {
-                associate = associates[i]
-                if ((associate[0] & base) == associate[0]) {
-                    associate[1]()
-                    base &= ~associate[0]
-                    i = 0
-                }
-                else {
-                    ++i
-                }
-            }
-
-        }
-
-        function t() {
-            associate(['a'], a)
-            associate(['b'], b)
-            associate(['c'], c)
-            associate(['d','e'],de)
-            associate()
-            mark('a')
-            fire()
-            assert(base, 0)
-            mark('b')
-            fire()
-            assert(base, 0)
-            mark('c')
-            fire()
-            assert(base, 0)
-            mark('a')
-            mark('c')
-            fire()
-            mark('d')
-            fire()
-            assert(base,8)
-            mark('e')
-            assert(base,24)
-            fire()
-            assert(base,0)
-
-        }
+    }
 
 
-        function mark(s) {
-            base |= (1 << marks.indexOf(s))
-        }
-        function unmark(s) {
-            base &= (~(1 << marks.indexOf(s)))
-        }
-        function is_marked(s) {
-            var ret
-            var is = base & (1 << marks.indexOf(s))
-            if (is == 0) {
-                ret = false
-            }
-            else {
-                ret = true
-            }
-            return ret
-        }
+    function mark(sa) {
+      if (sa.constructor === String)
+        mark_one(sa)
+      else if (sa.constructor === Array)
+        mark_many(sa)
+      else
+        throw 'Error: argument should be a string or an array'
+    }
+    function mark_one(s) {
+      base |= (1 << marks.indexOf(s))
+    }
 
-        function unset(binary) {
-            base & ~binary
-        }
+    function mark_many(a) {
+      for (var i = 0; i < a.length; ++i) {
+        mark_one(a[i])
+      }
+    }
+    function unmark(s) {
+      base &= (~(1 << marks.indexOf(s)))
+    }
+    function is_marked(s) {
+      var ret
+      var is = base & (1 << marks.indexOf(s))
+      if (is == 0) {
+        ret = false
+      }
+      else {
+        ret = true
+      }
+      return ret
+    }
 
-        function turn_on(arr) {
-            var byte = 0
-            for (var i = 0; i <= marks.length; ++i) {
-                byte(1 << marks.indexOf(s))
-            }
-        }
+    function unset(binary) {
+      base & ~binary
+    }
 
-        function test_marks() {
-            mark('b')
-            assert(2, base)
-            mark('c')
-            assert(6, base)
-            unmark('b')
-            assert(4, base)
-            assert(is_marked('c'), true)
-            assert(is_marked('b'), false)
+    function turn_on(arr) {
+      var byte = 0
+      for (var i = 0; i <= marks.length; ++i) {
+        byte(1 << marks.indexOf(s))
+      }
+    }
 
-        }
+    function test_marks() {
+      mark('b')
+      assert(2, base)
+      mark('c')
+      assert(6, base)
+      unmark('b')
+      assert(4, base)
+      assert(is_marked('c'), true)
+      assert(is_marked('b'), false)
 
-        function assert(a, b) {
-            if (a != b) {
-                console.log('Error: ' + a + ' != ' + b)
-            }
-        }
+    }
 
-        //test_associates()
-        t()
-        console.log('Done')
+    function assert(a, b) {
+      if (a != b) {
+        console.log('Error: ' + a + ' != ' + b)
+      }
+    }
 
-    </script>
+    test_associates()
+    console.log('Done')
+
+  </script>
 </div>
 </body>
 </html>
