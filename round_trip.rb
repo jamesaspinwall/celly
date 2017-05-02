@@ -35,7 +35,7 @@ class Writer
 
     $x.publish(@socket.to_s, routing_key: $q.name)
     puts @socket
-    q  = $ch.queue(@socket.to_s, :auto_delete => true)
+    q = $ch.queue(@socket.to_s, :auto_delete => true)
     q.subscribe do |delivery_info, metadata, payload|
       puts "Writer for socket #{@socket} received #{payload}"
       @socket << payload
@@ -100,10 +100,20 @@ class WebServer < Reel::Server::HTTP
     if request.url == "/"
       filename = "html/index.html"
     else
-      filename = "html/#{request.url}"
+      filename = "html#{request.url}"
     end
-    info "200 OK: /"
-    connection.respond :ok, File.open(filename) { |f| f.read }
+    n = filename.index('?')
+    unless n.nil?
+      filename = filename[0, n]
+    end
+    info "200 OK: #{filename}"
+    body = File.open(filename) { |f| f.read }
+    if filename[-5..-1] == '.json'
+      response = Reel::Response.new(:ok, {"content-type" => "application/json"}, body)
+    else
+      response = Reel::Response.new(:ok, {}, body)
+    end
+    connection.respond response
   rescue
     info "404 Not Found: #{request.path}"
     connection.respond :not_found, "Not found"
@@ -127,8 +137,8 @@ conn = Bunny.new
 conn.start
 
 ch = conn.create_channel
-$q  = ch.queue("rabbit", :auto_delete => true)
-$x  = ch.default_exchange
+$q = ch.queue("rabbit", :auto_delete => true)
+$x = ch.default_exchange
 $ch = conn.create_channel
 
 RoundtripServer.supervise_as :roundtrip_server

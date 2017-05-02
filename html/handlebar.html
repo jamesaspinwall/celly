@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ankura</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <ul id="result"></ul>
+</div>
+
+<script>
+  $.ajaxSetup({ cache: false });
+  window.app = {
+    update: function (target, template_url, data_url) {
+      if (!app.target) {
+        app.target = target
+        app.load_template(template_url)
+        app.load_data(data_url)
+      }
+    },
+    load_template: function (template_url) {
+      $.get(template_url, function (template) {
+        app.template = Handlebars.compile(template)
+        app.render()
+      })
+    },
+    load_data: function (data_url) {
+      $.getJSON(data_url, function (data) {
+        app.data = data
+        app.render()
+      })
+    },
+    render: function(){
+      if (app.template && app.data) {
+        $(app.target).html(app.template(app.data))
+      }
+    }
+  }
+  app.update('#result', '_handlebar.html', 'data.json')
+
+
+</script>

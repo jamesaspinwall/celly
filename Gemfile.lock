@@ -1,6 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    activemodel (5.0.2)
+      activesupport (= 5.0.2)
+    activesupport (5.0.2)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
     amq-protocol (2.1.0)
@@ -28,8 +35,17 @@ GEM
     celluloid-supervision (0.20.6)
       timers (>= 4.1.1)
     coderay (1.1.1)
+    colored (1.2)
+    concurrent-ruby (1.0.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    faraday (0.12.1)
+      multipart-post (>= 1.2, < 3)
+    faraday_middleware (0.10.1)
+      faraday (>= 0.7.4, < 1.0)
+    faraday_middleware-multi_json (0.0.6)
+      faraday_middleware
+      multi_json
     hitimes (1.2.4)
     http (2.2.2)
       addressable (~> 2.3)
@@ -40,22 +56,58 @@ GEM
       domain_name (~> 0.5)
     http-form_data (1.0.1)
     http_parser.rb (0.6.0)
+    httpclient (2.8.3)
+    i18n (0.8.1)
+    json (2.1.0)
     method_source (0.8.2)
+    minitest (5.10.1)
+    multi_json (1.12.1)
+    multipart-post (2.0.0)
+    neo4j (8.0.15)
+      activemodel (>= 4.0, < 5.1)
+      activesupport (>= 4.0, < 5.1)
+      neo4j-core (>= 7.0.0)
+      orm_adapter (~> 0.5.0)
+    neo4j-core (7.0.8)
+      activesupport (>= 4.0)
+      faraday (>= 0.9.0)
+      faraday_middleware (~> 0.10.0)
+      faraday_middleware-multi_json
+      httpclient
+      json
+      multi_json
+      neo4j-rake_tasks (>= 0.3.0)
+      net-http-persistent (~> 2.9.4)
+    neo4j-rake_tasks (0.7.11)
+      colored
+      os
+      rake
+      ruby-progressbar
+      rubyzip (>= 1.1.7)
+    net-http-persistent (2.9.4)
     nio4r (2.0.0)
+    orm_adapter (0.5.0)
+    os (1.0.0)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
     public_suffix (2.0.5)
+    rake (12.0.0)
     reel (0.6.1)
       celluloid (>= 0.15.1)
       celluloid-io (>= 0.15.0)
       http (>= 0.6.0.pre)
       http_parser.rb (>= 0.6.0)
       websocket-driver (>= 0.5.1)
+    ruby-progressbar (1.8.1)
+    rubyzip (1.2.1)
     slop (3.6.0)
+    thread_safe (0.3.6)
     timers (4.1.2)
       hitimes
+    tzinfo (1.2.3)
+      thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.4)
@@ -71,6 +123,7 @@ DEPENDENCIES
   celluloid
   celluloid-io
   http
+  neo4j
   pry
   reel
 
