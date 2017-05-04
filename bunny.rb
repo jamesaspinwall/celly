@@ -29,7 +29,7 @@ conn.start
 
 ch = conn.create_channel
 q = ch.queue("rabbit", :auto_delete => true)
-x = ch.default_exchange
+$exchange = ch.default_exchange
 
 queues = {}
 actors = {}
@@ -37,8 +37,8 @@ actors = {}
 q.subscribe do |delivery_info, metadata, socket|
   puts "Received socket: #{socket}"
   queues[socket] = ch.queue("#{socket}_out", auto_delete: true)
-  actors[socket] = DataFlow.new(socket, x)
-  x.publish("Connected #{socket}", routing_key: socket.to_s)
+  actors[socket] = DataFlow.new(socket, $exchange)
+  $exchange.publish("Connected #{socket}", routing_key: socket.to_s)
 
 
   queues[socket].subscribe do |delivery_info, metadata, payload|
@@ -46,6 +46,9 @@ q.subscribe do |delivery_info, metadata, socket|
     actors[socket].say_hello(payload)
   end
 end
+
+# IRB
+# $exchange.publish('Hello', routing_key: '')
 
 #sleep
 #conn.close

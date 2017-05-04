@@ -5,6 +5,7 @@ require 'celluloid/autostart'
 require "bunny"
 require 'pry'
 
+STDOUT.sync = true
 
 class RoundtripServer
   include Celluloid
@@ -24,6 +25,7 @@ class RoundtripServer
   end
 end
 
+# FROM backend TO socket
 class Writer
   include Celluloid
   include Celluloid::Logger
@@ -31,10 +33,10 @@ class Writer
   def initialize(websocket)
     info "Writer#initialize socket: #{websocket}"
     @socket = websocket
-    STDOUT.sync = true
 
+    # tell backend I will be listening to socket
     $x.publish(@socket.to_s, routing_key: $q.name)
-    puts @socket
+
     q = $ch.queue(@socket.to_s, :auto_delete => true)
     q.subscribe do |delivery_info, metadata, payload|
       puts "Writer for socket #{@socket} received #{payload}"
@@ -52,6 +54,7 @@ class Writer
 
 end
 
+# FROM socket TO backend
 class Reader
   include Celluloid
   include Celluloid::Logger
@@ -59,16 +62,16 @@ class Reader
   def initialize(websocket)
     info "Reader#initialize socket: #{websocket}"
     @socket = websocket
-    #subscribe('read_message', :new_message)
     new_message
   end
 
   def new_message
+    # send socket message to backend
     while msg = @socket.read
       info "Reader#new_message #{@socket}: msg: #{msg}"
       $x.publish(msg, routing_key: "#{@socket}_out")
-      #publish 'write_message', msg
     end
+
   rescue Reel::SocketError, EOFError
     info "WS client disconnected"
     terminate
@@ -129,17 +132,14 @@ class WebServer < Reel::Server::HTTP
     end
   end
 
-  def render_index(connection)
-  end
 end
 
 conn = Bunny.new
 conn.start
 
-ch = conn.create_channel
-$q = ch.queue("rabbit", :auto_delete => true)
-$x = ch.default_exchange
 $ch = conn.create_channel
+$q = $ch.queue("rabbit", :auto_delete => true)
+$x = $ch.default_exchange
 
 RoundtripServer.supervise_as :roundtrip_server
 WebServer.supervise_as :reel
