@@ -34,17 +34,18 @@
   </div>
 
   <script src="state_network.js"></script>
-<script>
+  <script>
 
-  var SocketKlass = "MozWebSocket" in window ? MozWebSocket : WebSocket;
-  var ws = new SocketKlass('ws://' + window.location.host + '/ws');
-  ws.onmessage = function(msg){
-    document.getElementById('current-time').innerHTML = msg.data;
-    data = JSON.parse(msg.data)
+    var SocketKlass = "MozWebSocket" in window ? MozWebSocket : WebSocket;
+    var ws = new SocketKlass('ws://' + window.location.host + '/ws');
+    ws.onmessage = function (msg) {
+      data = JSON.parse(msg.data)
+      console.log(data)
+      mark(data)
+      fire()
+    };
 
-  };
-
-</script>
+  </script>
 </div>
 </body>
 </html>

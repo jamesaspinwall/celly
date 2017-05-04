@@ -38,9 +38,9 @@ class Writer
     $x.publish(@socket.to_s, routing_key: $q.name)
 
     q = $ch.queue(@socket.to_s, :auto_delete => true)
-    q.subscribe do |delivery_info, metadata, payload|
-      puts "Writer for socket #{@socket} received #{payload}"
-      @socket << payload
+    q.subscribe do |delivery_info, metadata, json_payload|
+      puts "Writer for socket #{@socket} received #{json_payload}"
+      @socket << json_payload
     end
   end
 
