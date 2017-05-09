@@ -47,7 +47,7 @@ class Writer
   def new_message(new_time)
     info "Writer#new_message socket: #{@socket} new_time: #{new_time}"
     @socket << new_time.inspect
-  rescue Reel::SocketError
+  rescue =>e #Reel::SocketError
     info "WS client disconnected"
     terminate
   end
@@ -62,6 +62,7 @@ class Reader
   def initialize(websocket)
     info "Reader#initialize socket: #{websocket}"
     @socket = websocket
+    @writer = Writer.new(@socket)
     new_message
   end
 
@@ -72,8 +73,10 @@ class Reader
       $x.publish(msg, routing_key: "#{@socket}_out")
     end
 
-  rescue Reel::SocketError, EOFError
+  rescue => e #Reel::SocketError, EOFError
     info "WS client disconnected"
+    info e.message
+    @writer.terminate
     terminate
   end
 end
@@ -124,7 +127,6 @@ class WebServer < Reel::Server::HTTP
 
   def route_websocket(socket)
     if socket.url == "/ws"
-      Writer.new(socket)
       Reader.new(socket)
     else
       info "Received invalid WebSocket request for: #{socket.url}"

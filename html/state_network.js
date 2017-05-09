@@ -20,29 +20,12 @@ app = {
 x = [app.disable_a, app.disable_b]
 y = [app.enable_a, app.enable_b]
 
-function a(n) {
-  console.log('A')
-  console.log(n)
-}
-
-function b(x) {
-  console.log('B')
-  console.log(x['b'])
-}
-
-function c(p) {
-  console.log('C')
-}
-
-function de(p) {
-  console.log('DE')
-  console.log(p.d)
-  console.log(p.e)
-}
 base = 0
 marks = []
 associates = []
-funs = {}
+args = []
+flow = {}
+setings = []
 
 function check_one(variable, v_type) {
   if (variable.constructor !== v_type)
@@ -64,9 +47,57 @@ function to_bin(symbol) {
   return (1 << pos)
 }
 
+function mark(sa, params) {
+  if (sa.constructor === Array)
+    mark_one(sa[0], sa[1])
+  else if (sa.constructor === String)
+    mark_one(sa, params)
+//    else
+//        throw 'Error: argument should be a string or an array'
+}
+function mark_one(s, arg) {
+  var bits = (1 << marks.indexOf(s))
+  base |= bits
+  args[bits] = arg
+}
+
+function set(node,value){
+  setings.push([node,value])
+}
+
+function mark_many(a) {
+  for (var i = 0; i < a.length; ++i) {
+    mark_one(a[i])
+  }
+}
+function unmark(s) {
+  base &= (~(1 << marks.indexOf(s)))
+}
+function is_marked(s) {
+  var ret
+  var is = base & (1 << marks.indexOf(s))
+  if (is == 0) {
+    ret = false
+  }
+  else {
+    ret = true
+  }
+  return ret
+}
+
+function unset(binary) {
+  base & ~binary
+}
+
+function turn_on(arr) {
+  var byte = 0
+  for (var i = 0; i <= marks.length; ++i) {
+    byte(1 << marks.indexOf(s))
+  }
+}
+
 function associate(symbols, method) {
   //check_many([[symbols, Array], [method, Function]])
-
   var binary = 0
 
   if (symbols.constructor === Array) {
@@ -80,18 +111,42 @@ function associate(symbols, method) {
 }
 
 function fire() {
-  var i = 0
-  while (i < associates.length) {
-    associate = associates[i]
-    if ((associate[0] & base) == associate[0]) {
-      associate[1](funs)
-      base &= ~associate[0]
-      i = 0
+  var changed = true
+  while (changed) {
+    var working_base = base
+    var returns = []
+
+    changed = false
+    for (var i = 0; i < associates.length; ++i) {
+      associate = associates[i]
+      if ((associate[0] & base) == associate[0]) {
+        working_base &= ~associate[0] // turn-off input bits
+        var index = 1
+        var params = []
+        for (var k = 0; k < marks.length; ++k) {
+          if ((index & associate[0]) > 0)
+            params.push(args[index])
+          index <<= 1
+        }
+        ret = associate[1].apply(flow, params)
+        if (ret !== undefined)
+          for (var j = 0; j < ret.length; ++j)
+            returns.push(ret[j])
+
+        changed = true
+      }
     }
-    else {
-      ++i
+
+    base = working_base
+    for (var i = 0; i < returns.length; ++i) {
+      mark(returns[i])
     }
+    for (var i = 0; i < setings.length; ++i) {
+      mark(setings[i])
+    }
+
   }
+  return -1
 }
 
 function test_associates() {
@@ -127,50 +182,6 @@ function test_associates() {
 }
 
 
-function mark(sa) {
-//    if (sa.constructor === String)
-  mark_one(sa[0], sa[1])
-//    else if (sa.constructor === Array)
-//        mark_many(sa)
-//    else
-//        throw 'Error: argument should be a string or an array'
-}
-function mark_one(s, f) {
-  base |= (1 << marks.indexOf(s))
-  funs[s] = f
-}
-
-function mark_many(a) {
-  for (var i = 0; i < a.length; ++i) {
-    mark_one(a[i])
-  }
-}
-function unmark(s) {
-  base &= (~(1 << marks.indexOf(s)))
-}
-function is_marked(s) {
-  var ret
-  var is = base & (1 << marks.indexOf(s))
-  if (is == 0) {
-    ret = false
-  }
-  else {
-    ret = true
-  }
-  return ret
-}
-
-function unset(binary) {
-  base & ~binary
-}
-
-function turn_on(arr) {
-  var byte = 0
-  for (var i = 0; i <= marks.length; ++i) {
-    byte(1 << marks.indexOf(s))
-  }
-}
-
 function test_marks() {
   mark('b')
   assert(2, base)
@@ -189,11 +200,68 @@ function assert(a, b) {
   }
 }
 
+function a(n) {
+  console.log('a(n): ' + n)
+  return ([['b', {b: 888}], ['e', 55]])
+}
+function aa(p) {
+  console.log('aa(p):' + p)
+}
+
+function b(x) {
+  console.log('B')
+  console.log(x['b'])
+  return ([['c', 'James']])
+}
+
+function c(name) {
+  console.log('C')
+  console.log(name)
+  return ([['d', 111]])
+}
+
+function de(d, e) {
+  console.log('DE')
+  console.log(d)
+  console.log(e)
+}
+
+function def(d,e,f){
+  console.log('def(d,e,f): '+ d + ',' + e + ',' + f)
+}
+
+function join(a, b, c) {
+  console.log('join(a,b,c): ' + a + ',' + b + ',' + c)
+}
+function dd(d) {
+  console.log('dd: ' + d)
+}
+
+function no(n,o){
+  console.log('no(n,o): ',n + ',' + o)
+}
+
 //test_associates()
 associate('a', a)
 associate('b', b)
 associate('c', c)
 associate(['d', 'e'], de)
+associate('d', dd)
+associate(['x', 'y', 'z'], join)
+associate('a', aa)
+associate(['d','e','f'], def)
+associate(['n','o'],no)
+set('n',999)
+mark('a', 777)
+mark('z', 3)
+mark('x', 1)
+mark('y', 2)
+mark('f','000')
+//mark('o',0)
+
+fire()
+mark('o',100000)
+fire()
 
 console.log('Done')
 
