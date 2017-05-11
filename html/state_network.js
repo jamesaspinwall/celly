@@ -21,7 +21,7 @@ x = [app.disable_a, app.disable_b]
 y = [app.enable_a, app.enable_b]
 
 base = 0
-marks = []
+labels = []
 associates = []
 args = []
 flow = {}
@@ -39,10 +39,10 @@ function check_many(arr) {
 }
 
 function to_bin(symbol) {
-  var pos = marks.indexOf(symbol)
+  var pos = labels.indexOf(symbol)
   if (pos == -1) {
-    pos = marks.length
-    marks.push(symbol)
+    pos = labels.length
+    labels.push(symbol)
   }
   return (1 << pos)
 }
@@ -56,7 +56,7 @@ function mark(sa, params) {
     throw 'Error: argument should be a string or an array'
 }
 function mark_one(s, arg) {
-  var bits = (1 << marks.indexOf(s))
+  var bits = (1 << labels.indexOf(s))
   base |= bits
   args[bits] = arg
 }
@@ -71,11 +71,11 @@ function mark_many(a) {
   }
 }
 function unmark(s) {
-  base &= (~(1 << marks.indexOf(s)))
+  base &= (~(1 << labels.indexOf(s)))
 }
 function is_marked(s) {
   var ret
-  var is = base & (1 << marks.indexOf(s))
+  var is = base & (1 << labels.indexOf(s))
   if (is == 0) {
     ret = false
   }
@@ -89,10 +89,10 @@ function unset(binary) {
   base & ~binary
 }
 
-function turn_on(arr) {
+function turn_on() {
   var byte = 0
-  for (var i = 0; i <= marks.length; ++i) {
-    byte(1 << marks.indexOf(s))
+  for (var i = 0; i <= labels.length; ++i) {
+    byte(1 << labels.indexOf(s))
   }
 }
 
@@ -123,7 +123,7 @@ function fire() {
         working_base &= ~associate[0] // turn-off input bits
         var index = 1
         var params = []
-        for (var k = 0; k < marks.length; ++k) {
+        for (var k = 0; k < labels.length; ++k) {
           if ((index & associate[0]) > 0)
             params.push(args[index])
           index <<= 1
@@ -187,7 +187,7 @@ function test_associates() {
 }
 
 
-function test_marks() {
+function test_labels() {
   mark('b')
   assert(2, base)
   mark('c')
@@ -282,6 +282,7 @@ associate('ab', m)
 associate('xy', n)
 associate(['ab1', 'xy1'], o)
 
+fire()
 
 mark('o', 100000)
 fire()
