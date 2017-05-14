@@ -17,12 +17,15 @@ $(function () {
 window.row = {
     load_template: function (template_url) {
         $.get(template_url, function (template) {
-            mark('template',Handlebars.compile(template))
+            set('template',Handlebars.compile(template))
+            //mark('template',Handlebars.compile(template))
+            fire()
         })
     },
     load_data: function (data_url) {
         $.getJSON(data_url, function (data) {
             mark('data',data)
+            fire()
         })
     },
     render: function(template,data){
@@ -36,7 +39,7 @@ associate(['template', 'data'], row.render)
 function load_ankura() {
     mark('load_template', '_handlebar.html')
     mark('load_data', 'data.json')
-
+    fire()
 }
 
 
