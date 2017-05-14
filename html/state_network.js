@@ -21,6 +21,7 @@ function mark(sa, params) {
         mark_one(sa, params)
     else
         throw 'Error: argument should be a string or an array'
+    //fire()
 }
 function mark_one(s, arg) {
     var bits = (1 << labels.indexOf(s))
@@ -30,7 +31,7 @@ function mark_one(s, arg) {
 
 function set(node, value) {
     setings.push([node, value])
-    mark(node,value)
+    mark_one(node,value)
 }
 
 function mark_many(a) {
@@ -118,6 +119,6 @@ function fire() {
         }
 
     }
-    return -1
+    return 'ok'
 }
 
