@@ -33,6 +33,9 @@ window.row = {
   },
   compile: function (template) {
     return [['template', Handlebars.compile(template)]]
+  },
+  try_it: function(source){
+    eval(source)
   }
 }
 
@@ -46,6 +49,7 @@ function load_ankura() {
 }
 
 
+associate('try_it',row.try_it)
 associate('compile', row.compile)
 associate(['template', 'data'], row.render)
 
