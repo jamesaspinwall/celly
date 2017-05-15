@@ -103,3 +103,7 @@ end
 
 WebServer.supervise_as :reel
 #sleep
+
+if false
+  Reader.readers[0].new_message(['data',{"title": "VW", "body": "Claims"}])
+end
