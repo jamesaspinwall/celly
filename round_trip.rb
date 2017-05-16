@@ -107,3 +107,12 @@ WebServer.supervise_as :reel
 if false
   Reader.readers[0].new_message(['data',{"title": "VW", "body": "Claims"}])
 end
+
+def row(first, last, email)
+  Reader.readers[0].new_message(['row_values',{first: first, last: last, email: email}])
+end
+
+def fill
+  row('James','Aspinwall','james@gmail.com')
+  row('Olga','Shestakova','olga@russia.com')
+end

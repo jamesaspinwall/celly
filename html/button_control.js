@@ -17,8 +17,7 @@ $(function () {
 window.row = {
   load_template: function (template_url) {
     $.get(template_url, function (template) {
-      set('template', Handlebars.compile(template))
-      //mark('template',Handlebars.compile(template))
+      mark('template', Handlebars.compile(template))
       fire()
     })
   },
@@ -34,9 +33,9 @@ window.row = {
   compile: function (template) {
     return [['template', Handlebars.compile(template)]]
   },
-  try_it: function(source){
+  try_it: function (source) {
     eval(source)
-  }
+  },
 }
 
 function load_ankura() {
@@ -48,10 +47,28 @@ function load_ankura() {
   fire()
 }
 
+function load_js() {
+  associate('try_it', row.try_it)
+  associate('compile', row.compile)
+  associate(['template', 'data'], row.render)
 
-associate('try_it',row.try_it)
-associate('compile', row.compile)
-associate(['template', 'data'], row.render)
+  template = '<div><pre>{{title}}</pre><div>{{body}}</div></div>'
+  mark('compile', template, true)
+}
 
-template='<div><pre>{{title}}</pre><div>{{body}}</div></div>'
-mark('compile',template,true)
+window.table = {
+  compile_row: function (template) {
+    return [['template_function', Handlebars.compile(template)]]
+  },
+  render_row: function (template_function, row_values) {
+    $('#contacts').append(template_function(row_values))
+  }
+}
+
+
+associate('compile_row', window.table.compile_row)
+associate(['template_function', 'row_values'], window.table.render_row)
+
+mark('compile_row', '<tr><td>{{first}}</td><td>{{last}}</td><td>{{email}}</td></tr>', true)
+//mark('row_values', {first: 'James', last: 'Aspinwall', email: 'jamesaspinwall@gmail.com'})
+//fire()
