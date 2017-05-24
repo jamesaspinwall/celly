@@ -39,13 +39,7 @@
 <div class="container">
 
   <h2>Ankura</h2>
-  <div class="container">
-
-    <!-- TEXT FIELD -->
-    <div class="form-group">
-      <label for="user">Name:</label>
-      <input id='user' type="text" class="form-control">
-    </div>
+  <div id="contact_form" class="container">
 
 
     <!-- CHECKBOX -->
@@ -175,7 +169,7 @@
     <form class="form-inline">
       <div class="form-group">
         <label for="email">Email address:</label>
-        <input  id='user_email' type="email" class="form-control" id="email">
+        <input id='user_email' type="email" class="form-control" id="email">
       </div>
       <div class="form-group">
         <label for="pwd">Password:</label>
@@ -315,19 +309,33 @@
   <script src="button_control.js"></script>
   <script>
     $(function () {
+
+      document.cookie = "username=John Doe"
+
+
       // initialize popover
       $('[data-toggle="popover"]').popover();
       $('[data-toggle="tooltip"]').tooltip();
 
 
+      <!-- TEXT FIELD -->
+      text_template = `<div class="form-group">
+        <label for="{{id}}">Name:</label>
+      <input id='{{id}}' type="text" class="form-control">
+        </div>`
+
+      text_template_function = Handlebars.compile(text_template)
+      $('#contact_form').append(text_template_function({id: 'name'}))
+
       $("input:text").change(function () {
         console.log(this.id + ': ' + this.value)
       })
 
-      associate('name',name)
-      function name(str){
-        $('#usr',)
+
+      function name(str) {
+        $('#name').val(str)
       }
+      associate('name', name)
 
       $("[type=email]").change(function () {
         console.log(this.id + ': ' + this.value)
@@ -365,7 +373,7 @@
       $('#saving').get(0).checked = true
       $('#checking').get(0).checked = true
       $('#money_market').get(0).checked = false
-      $('#user').get(0).value = 'James Aspinwall'
+      //$('#user').get(0).value = 'James Aspinwall'
 
       $('#a').click(function () {
         $('#myModal').modal('toggle')
@@ -375,13 +383,13 @@
         console.log(this.id + ': ' + this.value)
       })
     })
-    $('#b').click(function(){
+    $('#b').click(function () {
 
       notify = $.notify({
         icon: 'glyphicon glyphicon-warning-sign',
         title: 'ABC',
         message: 'I have been clicked'
-      },{
+      }, {
         // settings
         element: 'body',
         position: null,
@@ -421,6 +429,7 @@
         '</div>'
       })
     })
+
 
   </script>
 </div>

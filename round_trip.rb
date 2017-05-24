@@ -116,3 +116,7 @@ def fill
   row('James','Aspinwall','james@gmail.com')
   row('Olga','Shestakova','olga@russia.com')
 end
+
+def mark(label, value)
+  Reader.readers[0].new_message([label, value])
+end
