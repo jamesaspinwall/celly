@@ -4,9 +4,18 @@ require 'reel'
 require 'celluloid/autostart'
 require "bunny"
 require 'pry'
+require 'selenium-webdriver'
+require 'listen'
 
-require './state_network.rb'
-require './state.rb'
+load 'controllers/users_controller.rb'
+load 'lib/listener.rb'
+
+#require './state_network.rb'
+#require './state.rb'
+
+Dir['../asset_portal/app/models/*.rb'].each do |file|
+  load file
+end
 
 STDOUT.sync = true
 
@@ -14,7 +23,10 @@ STDOUT.sync = true
 class Reader
   include Celluloid
   include Celluloid::Logger
-  include StateNetwork
+
+  attr_accessor :socket, :controller
+
+  #include StateNetwork
 
   class << self
     attr_accessor :readers
@@ -24,28 +36,38 @@ class Reader
   attr_accessor :state
 
   def initialize(websocket)
+
     info "#initialize socket:Reader #{websocket}"
-    @state = State.new
+    #@state = State.new
 
     Reader.readers << self
     @socket = websocket
+    @controller = UsersController.new
+
     while msg = @socket.read
-      label,data = JSON.parse msg
-      info "Reader#new_message {@socket}: label: #{label} data: #{data}"
-      state.mark(label,data)
-      new_message(state.fire)
+      tuple = JSON.parse msg
+      info "Reader: tuple: #{tuple}"
+      name = tuple.shift
+      if name == 'ruby'
+        tuple.each do |line|
+          eval(line)
+        end
+      else
+        browser(@controller.send(name, *tuple))
+      end
+      #state.mark(label,data)
     end
-  rescue => e #Reel::SocketError, EOFError
+  rescue => e
     info "Reader#initialize(#{e.class}: #{e.message}"
     Reader.readers.delete self
     terminate
   end
 
-  def new_message(data)
-    info "Writer#new_message socket: #{@socket} new_time: #{data}"
+  def browser(data)
+    info "Writer: #{data.inspect}"
     @socket << data.to_json
-  rescue =>e
-    info "Reader#new_message Error: #{e.message}\n #{e.backtrace}"
+  rescue => e
+    info "Reader#send_obj(Error): #{e.message}\n #{e.backtrace}"
   end
 end
 
@@ -102,21 +124,24 @@ class WebServer < Reel::Server::HTTP
 end
 
 WebServer.supervise_as :reel
-#sleep
 
 if false
-  Reader.readers[0].new_message(['data',{"title": "VW", "body": "Claims"}])
+  Reader.readers[0].browser('data', {"title": "VW", "body": "Claims"})
 end
 
 def row(first, last, email)
-  Reader.readers[0].new_message(['row_values',{first: first, last: last, email: email}])
+  Reader.readers[0].send_obj(['row_values', {first: first, last: last, email: email}])
 end
 
 def fill
-  row('James','Aspinwall','james@gmail.com')
-  row('Olga','Shestakova','olga@russia.com')
+  row('James', 'Aspinwall', 'james@gmail.com')
+  row('Olga', 'Shestakova', 'olga@russia.com')
 end
 
 def mark(label, value)
-  Reader.readers[0].new_message([label, value])
+  Reader.readers[0].browser([label, value])
 end
+
+#driver = Selenium::WebDriver.for :chrome
+#driver.navigate.to 'http://localhost:9000/text_button.html'
+
