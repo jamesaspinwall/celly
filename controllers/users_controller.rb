@@ -12,7 +12,7 @@ end
 
 
 if false
-  Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: ENV['user'], password: ENV['password')
+  Neo4j::Session.open(:server_db, 'http://localhost:7474', basic_auth: {username: ENV['user'], password: ENV['password']})
   Neo4j::Node.create(name: 'a')
 end
 
