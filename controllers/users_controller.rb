@@ -77,6 +77,16 @@ class UsersController
     code = IO.read("html/#{name}")
     ['js',code]
   end
+
+  def load_text_template(name)
+    template = IO.read("html/#{name}")
+    ['load_text_template',template]
+  end
+  def load_row_template(name)
+    template = IO.read("html/#{name}")
+    ['load_row_template',template]
+  end
+
 end
 
 class PeopleController
