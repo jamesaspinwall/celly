@@ -1,6 +1,5 @@
 // TEMPLATES
 
-
 $.get('/user/text_template.html', function (template) {
   text_template = Handlebars.compile(template)
   $('#input').append(text_template({id: 'search', label: 'Search'}))

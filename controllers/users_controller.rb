@@ -1,7 +1,10 @@
 # ---------- NEO -----------
 require 'neo4j'
 require 'neo4j/core/cypher_session/adaptors/http'
-
+if ENV['user'].nil? or ENV['password'].nil?
+  puts 'Missing ENV user and password'
+  exit
+end
 Neo4j::ActiveBase.on_establish_session {Neo4j::Core::CypherSession.new(
   Neo4j::Core::CypherSession::Adaptors::HTTP.new("http://#{ENV['user']}:#{ENV['password']}@localhost:7474")
 )}
@@ -57,6 +60,22 @@ class UsersController
 
   def save
 
+  end
+
+  def ready
+    head = IO.read('html/head.html')
+    ['write_html',head]
+  end
+
+
+  def render_layout
+    layout = IO.read('html/layout.html')
+    ['write_layout', layout]
+  end
+
+  def load_js(name)
+    code = IO.read("html/#{name}")
+    ['js',code]
   end
 end
 
