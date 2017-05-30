@@ -41,12 +41,11 @@ class UsersController
   end
 
   def update(data)
-    is_new = @user.id.nil?
-    if @user.update(data)
-      data = @user.attributes.merge(id: @user.id)
-      is_new ? [['add_row', data],['js',"$('#user').modal('toggle')"]] : ['update_row', data]
+    data.each_pair do |field,value|
+      @user[field] = value
     end
-  end
+    nil
+ end
 
   def cancel
     @user = nil
@@ -59,7 +58,11 @@ class UsersController
   end
 
   def save
-
+    is_new = @user.id.nil?
+    if @user.save
+      data = @user.attributes.merge(id: @user.id)
+    end
+    [is_new ? ['add_row', data] : ['update_row', data],['js',"$('#user').modal('toggle')"]]
   end
 
   def ready

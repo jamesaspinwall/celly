@@ -53,7 +53,8 @@ class Reader
           eval(line)
         end
       else
-        browser(@controller.send(name, *tuple))
+        ret = @controller.send(name, *tuple)
+        browser(ret) unless ret.nil?
       end
       #state.mark(label,data)
     end
