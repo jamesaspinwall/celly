@@ -44,7 +44,6 @@ app = {
   },
   write_layout: function(data){
     $('body').append(data)
-    server('load_js','load_templates.js')
   }
 }
 
