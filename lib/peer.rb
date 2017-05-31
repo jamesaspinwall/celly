@@ -13,7 +13,7 @@ class Peer
   attr_accessor :connections, :receive_socket, :receiver_port, :send_address, :send_socket, :send_socket
 
   def initialize(receive_port)
-    puts "IP: #{Socket::getaddrinfo(Socket.gethostname, "echo", Socket::AF_INET)[0][3]}"
+    puts ip_address
     @receive_port = receive_port
     async.loop_msg
   end
