@@ -66,14 +66,6 @@ class Peer
   end
 end
 
-#if ARGV.size == 3
-p = Peer.new ARGV[0].to_i
-
-#else
-#  puts ' Usage: <receive_port>'
-#end
-
-
 class UserController
   include Celluloid
 
@@ -91,3 +83,10 @@ def ip_address
   ips.delete("127.0.0.1")
   ips
 end
+
+#if ARGV.size == 3
+#p = Peer.new ARGV[0].to_i
+
+#else
+#  puts ' Usage: <receive_port>'
+#end
