@@ -1,20 +1,18 @@
 // APP
 
 app.clear_rows = function () {
-  $('#contacts tr').remove()
+  $('table tbody tr').remove()
 }
 
 app.add_row = function (data) {
-  $('#contacts').append(app.template.row(data))
+  $('table tbody').append(app.template.row(data))
   // Event attached to the newly created delete button
-  $('#delete-' + data.id).click(function (e) {
-    var id = e.target.id.substr(7)
-    server('delete', id)
+  $('#delete-' + data.id).click(function () {
+    server('delete', data.id)
   })
 
-  $('#edit-' + data.id).click(function (e) {
-    var id = e.target.id.substr(5)
-    server('read', id)
+  $('#edit-' + data.id).click(function () {
+    server('read', data.id)
   })
 }
 
@@ -39,23 +37,20 @@ app.load_row_template = function (template) {
 
 app.load_text_template = function (template) {
   app.template.text = Handlebars.compile(template)
-  $('#input').append(app.template.text({id: 'search', label: 'Search'}))
+  $('#search').append(app.template.text({id: 'search', label: 'Search'}))
+  $('.modal-body').append(app.template.text({id: 'name', label: 'Name'}))
+  $('.form-group input').change(function () {
+    var field = {}
+    field[this.id] = this.value
+    server('input', field)
+  })
 }
 
-$('#add').click(function (e) {
-  server('create')
+$('.action').click(function () {
+  server(this.id)
 })
 
-$('#close').click(function(){
-  server('cancel')
-})
-$('#name').change(function () {
-  server('update', {name: this.value})
-})
 
-$('#save').click(function (e) {
-  server('save')
-})
 
 
 server('load_row_template', 'user/row_template.html')

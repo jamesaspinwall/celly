@@ -21,6 +21,31 @@ end
 
 class UsersController
 
+  def ready
+    head = IO.read('html/user/head.html')
+    ['write_html', head]
+  end
+
+  def render_layout
+    layout = IO.read('html/user/layout.html')
+    ['write_layout', layout]
+  end
+
+  def load_text_template(name)
+    template = IO.read("html/#{name}")
+    ['load_text_template', template]
+  end
+
+  def load_row_template(name)
+    template = IO.read("html/#{name}")
+    ['load_row_template', template]
+  end
+
+  def load_js(name)
+    code = IO.read("html/#{name}")
+    ['js', code]
+  end
+
   def index
     [['clear_rows']] +
       User.all.order(:name).map do |user|
@@ -29,7 +54,7 @@ class UsersController
       end
   end
 
-  def create
+  def add
     @user = User.new
     ['edit', @user.attributes]
   end
@@ -40,12 +65,20 @@ class UsersController
     ['edit', data]
   end
 
-  def update(data)
-    data.each_pair do |field,value|
+  def input(data)
+    data.each_pair do |field, value|
       @user[field] = value
     end
     nil
- end
+  end
+
+  def save
+    is_new = @user.id.nil?
+    if @user.save
+      data = @user.attributes.merge(id: @user.id)
+    end
+    [is_new ? ['add_row', data] : ['update_row', data], ['js', "$('#user').modal('toggle')"]]
+  end
 
   def cancel
     @user = nil
@@ -57,39 +90,9 @@ class UsersController
     ['remove_row', id]
   end
 
-  def save
-    is_new = @user.id.nil?
-    if @user.save
-      data = @user.attributes.merge(id: @user.id)
-    end
-    [is_new ? ['add_row', data] : ['update_row', data],['js',"$('#user').modal('toggle')"]]
+  def logout
+    ['js','console.log("I am out of here")']
   end
-
-  def ready
-    head = IO.read('html/head.html')
-    ['write_html',head]
-  end
-
-
-  def render_layout
-    layout = IO.read('html/layout.html')
-    ['write_layout', layout]
-  end
-
-  def load_js(name)
-    code = IO.read("html/#{name}")
-    ['js',code]
-  end
-
-  def load_text_template(name)
-    template = IO.read("html/#{name}")
-    ['load_text_template',template]
-  end
-  def load_row_template(name)
-    template = IO.read("html/#{name}")
-    ['load_row_template',template]
-  end
-
 end
 
 class PeopleController

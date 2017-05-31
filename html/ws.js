@@ -4,19 +4,18 @@ ws.onmessage = function (msg) {
   data = JSON.parse(msg.data)
   if (data[0].constructor == Array) {
     for (var i = 0; i < data.length; ++i) {
-      apply_me(data[i])
+      ws.apply(data[i])
     }
   }
   else {
-    apply_me(data)
-  }
-};
+    ws.apply(data)
+  }}
 
 ws.onopen = function(){
   server('ready')
 }
 
-function apply_me(data) {
+ws.apply = function (data) {
   var fun = data.shift()
   console.log('fun: '+fun)
   if (fun == 'js') {
