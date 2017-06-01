@@ -35,6 +35,14 @@ class Controller
   include Celluloid
 
   attr_accessor :socket
+  class << self
+    attr_accessor :controllers
+  end
+  self.controllers = []
+
+  def initialize
+    Controller.controllers << self
+  end
 
   def reader(socket)
     _, port, host = socket.peeraddr
@@ -48,7 +56,32 @@ class Controller
     puts "*** #{host}:#{port} disconnected"
     socket.close
   end
+
+  def parser(buffer)
+    begin
+        tuple = JSON.parse buffer
+        puts "Controller: parser: #{tuple}"
+        name = tuple.shift
+        if name == 'ruby'
+          tuple.each do |line|
+            eval(line)
+          end
+        else
+          ret = send(name, *tuple)
+          #browser(ret) unless ret.nil?
+        end
+    rescue => e
+      puts e.message
+      puts e.backtrace
+    end
+  end
+
+  def say(word)
+    puts "<< I say #{word} >>"
+    ['say back',word]
+  end
 end
 supervisor = EchoServer.supervise("127.0.0.1", 1234)
 #trap("INT") { supervisor.terminate; exit }
 #sleep
+

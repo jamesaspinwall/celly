@@ -4,6 +4,8 @@ require "rubygems"
 require "bundler/setup"
 require "celluloid/autostart"
 require "celluloid/io"
+require 'json'
+require 'listen'
 
 STDOUT.sync = true
 
@@ -24,11 +26,21 @@ class EchoClient
     }
   end
 
-  def send(s)
-    @socket.write(s)
+  def send(*tuple)
+    buffer = tuple.to_json
+    @socket.write(buffer)
   end
 end
 
-client = EchoClient.new("127.0.0.1", 1234)
+listener = Listen.to('.', only: /tcp_client.rb$/) {|modified, added, removed|
+  puts 'reloading'
+  Object.send(:remove_const, :EchoClient); load 'tcp_client.rb'
+}
+listener.start
+
+
+puts %q{@client = EchoClient.new("127.0.0.1", 1234)}
+puts %q{@client.send('say','Hello World')}
+puts %q{Object.send(:remove_const, :EchoClient); load 'tcp_client.rb'}
 
 
