@@ -75,7 +75,7 @@ class Controller
 
   def say(word)
     response = "<< I say to you sir: #{word} Good day >>"
-    ['say back',response]
+    ['say_back',response]
   end
 
   def compute(a,b)
