@@ -32,11 +32,11 @@ class EchoClient
   end
 end
 
-listener = Listen.to('.', only: /tcp_client.rb$/) {|modified, added, removed|
-  puts 'reloading'
-  Object.send(:remove_const, :EchoClient); load 'tcp_client.rb'
-}
-listener.start
+# listener = Listen.to('.', only: /tcp_client.rb$/) {|modified, added, removed|
+#   puts 'reloading'
+#   Object.send(:remove_const, :EchoClient); load 'tcp_client.rb'
+# }
+# listener.start
 
 
 puts %q{@client = EchoClient.new("127.0.0.1", 1234)}
