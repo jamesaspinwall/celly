@@ -6,32 +6,29 @@ class Logging
   include Celluloid
 
   def initialize
-    @file = File.open('test.txt','w')
+    @file = File.open('test.txt', 'w')
     @file.sync = true
   end
+
   def log(str)
     @file.puts str
   end
 end
 
-class UdpServer
-  MAX_PACKET_SIZE = 512
+class Server
+  MAX_PACKET_SIZE = 1024
   include Celluloid::IO
 
-  def initialize(addr, port, &block)
+  def initialize(addr ='0.0.0.0', port = 7000)
 
-    logging = Logging.new
-    @block = block
-
-    # Create a non-blocking Celluloid::IO::UDPSocket
     @socket = UDPSocket.new
     @socket.bind(addr, port)
 
     loop do
       data, (_, port, addr) = @socket.recvfrom(MAX_PACKET_SIZE)
-      logging.async.log data
+      puts data
     end
   end
 end
 
-udp_server = UdpServer.new('0.0.0.0', 7000)
+#server = Server.new

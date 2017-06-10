@@ -34,7 +34,6 @@ class Client
             eval(line)
           end
         else
-          binding.pry
           ret = controller.send(name, *tuple)
           send ret.to_json unless ret.nil?
         end

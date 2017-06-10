@@ -146,3 +146,4 @@ end
 #driver = Selenium::WebDriver.for :chrome
 #driver.navigate.to 'http://localhost:9000/text_button.html'
 
+sleep
