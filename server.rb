@@ -2,21 +2,9 @@ require 'rubygems'
 require 'bundler/setup'
 require 'reel'
 require 'celluloid/autostart'
-require "bunny"
 require 'pry'
 require 'pry-nav'
-require 'selenium-webdriver'
-require 'listen'
 
-load 'controllers/users_controller.rb'
-load 'lib/listener.rb'
-
-#require './state_network.rb'
-#require './state.rb'
-
-Dir['../asset_portal/app/models/*.rb'].each do |file|
-  load file
-end
 
 STDOUT.sync = true
 
@@ -29,7 +17,7 @@ class Client
     @sock = UDPSocket.new
   end
 
-  def server(data)
+  def send(data)
     @sock.send(data, 0, @server, @port)
   end
 end
@@ -42,14 +30,20 @@ class Server
 
     @socket = UDPSocket.new
     @socket.bind(addr, port)
+    @websocket = websocket
+    async.receive
 
+  end
+
+  def receive
     loop do
       data, (_, port, addr) = @socket.recvfrom(MAX_PACKET_SIZE)
-      binding.pry
-      websocket << data
+      @websocket << data
     end
+
   end
 end
+
 
 # FROM socket TO backend
 class Reader
@@ -76,7 +70,7 @@ class Reader
     @socket = websocket
     #@controller = UsersController.new
     @udp = Client.new
-    Server.new(@socket)
+    @server = Server.new(@socket)
 
     while msg = @socket.read
       tuple = JSON.parse msg
@@ -88,10 +82,8 @@ class Reader
         end
       else
         #ret = @controller.send(name, *tuple)
-        @udp.server(msg)
-        #browser(ret) unless ret.nil?
+        @udp.send(msg)
       end
-      #state.mark(label,data)
     end
   rescue => e
     info "Reader#initialize(#{e.class}: #{e.message}"
@@ -110,7 +102,7 @@ end
 class WebServer < Reel::Server::HTTP
   include Celluloid::Logger
 
-  def initialize(host = "0.0.0.0", port = 9000)
+  def initialize(host = "0.0.0.0", port = 9500)
     info "WebServer#initialize #{host}:#{port}"
     super(host, port, &method(:on_connection))
   end
@@ -138,7 +130,7 @@ class WebServer < Reel::Server::HTTP
       filename = filename[0, n]
     end
     info "200 OK: #{filename}"
-    body = File.open(filename) {|f| f.read}
+    body = File.open(filename) { |f| f.read }
     if filename[-5..-1] == '.json'
       response = Reel::Response.new(:ok, {"content-type" => "application/json"}, body)
     else
@@ -181,4 +173,4 @@ end
 #driver = Selenium::WebDriver.for :chrome
 #driver.navigate.to 'http://localhost:9000/text_button.html'
 
-sleep
+#sleep

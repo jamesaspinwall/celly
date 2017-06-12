@@ -12,6 +12,7 @@ ws.onmessage = function (msg) {
   }}
 
 ws.onopen = function(){
+  console.log('Connecting')
   server('ready')
 }
 
@@ -43,6 +44,10 @@ app = {
   },
   write_layout: function(data){
     $('body').append(data)
+  },
+  ready: function(data){
+    console.log('Connected')
+
   }
 }
 
