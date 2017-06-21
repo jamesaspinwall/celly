@@ -8,6 +8,10 @@ class Worker
   def say(word)
     ['js', "console.log('#{word}')"]
   end
+
+  def ready
+    puts 'Browser ready'
+  end
 end
 
 
@@ -43,7 +47,7 @@ class Server
         tuple = JSON.parse msg
         meth = tuple.shift
         payload = @worker.send(meth, *tuple)
-        client.send(payload.to_json)
+        client.send(payload.to_json) unless payload.nil?
       rescue => e
         puts e.message
       end
@@ -91,4 +95,4 @@ out
 # puts count/ (Time.now.to_f - start_at)
 
 
-sleep
+#sleep
