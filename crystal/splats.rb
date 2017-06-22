@@ -26,9 +26,6 @@ end
 
 puts bar(2, 3)
 
-f = {
-    "bar" => -> bar(Int32, Int32)
-}
 x = 60
 y = 9
 
@@ -42,26 +39,31 @@ puts "-" * 80
 channel = Channel(Tuple(String, Int32)).new
 spawn do
   values = {} of String => Int32
+  inputs = {["x", "y"] => -> bar(Int32, Int32)}
+  keys_to_delete = [] of String
   loop do
     key, value = channel.receive
+    values[key] = value
     puts "Key: #{key}"
     puts "Value: #{value}\n\n"
-    values[key] = value
 
-    puts "values.key?(x): #{values.has_key?("x")}"
-
-    if values.has_key?("x") && values.has_key?("y")
-      puts "Calling: #{name}"
-      values["z"] = f[name].call(*{values["x"], values["y"]})
-      #puts "Return class: #{ret.class}"
-      puts "Return: #{values["z"]}"
+    inputs.keys.each do |input_keys|
+      puts "keys: #{values.keys} empty?: #{(input_keys - values.keys).empty?}"
+      if (input_keys - values.keys).empty?
+        puts "Calling: #{name}"
+        values["z"] = inputs[["x", "y"]].call(*{values["x"], values["y"]})
+        keys_to_delete += input_keys
+        #puts "Return class: #{ret.class}"
+        puts "Return: #{values["z"]}"
+      end
     end
+    puts "keys to delete: #{keys_to_delete}"
   end
 end
 
 channel.send({"x", 1000})
-Fiber.yield
 channel.send({"y", 2000})
+
 Fiber.yield
 #puts f["bar"].call(*{x, y})
 
